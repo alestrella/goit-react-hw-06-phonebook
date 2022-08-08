@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import Box from 'components/Box';
 import { ContactItem } from './ContactItem';
 
-const ContactList = ({ values, handleDelete }) => {
+const ContactList = ({ values, onDelete }) => {
   return (
     <Box display="flex" flexDirection="column" as="ul">
       {values.map(({ id, name, number }) => {
@@ -11,7 +11,7 @@ const ContactList = ({ values, handleDelete }) => {
             key={id}
             name={name}
             number={number}
-            handleDelete={() => handleDelete(id)}
+            handleDelete={() => onDelete(id)}
           />
         );
       })}
@@ -29,5 +29,5 @@ ContactList.propTypes = {
       number: PropTypes.string.isRequired,
     }).isRequired
   ).isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };

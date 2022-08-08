@@ -1,8 +1,8 @@
-// import { useState } from 'react';
-import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import NumberFormat from 'react-number-format';
+import toast from 'react-hot-toast';
+import { nanoid } from 'nanoid';
 import {
   Button,
   Label,
@@ -10,11 +10,8 @@ import {
   FormStyled,
   ErrorText,
 } from './ContactForm.styled';
-
-const initialValues = {
-  name: '',
-  number: '',
-};
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, getContacts } from 'redux/contactsSlice';
 
 const contactSchema = Yup.object({
   name: Yup.string()
@@ -38,13 +35,37 @@ const MaskedInput = ({ field, ...props }) => (
   />
 );
 
-export const ContactForm = ({ onSubmit, checkDuplicates }) => {
-  const handleSubmit = (values, { resetForm }) => {
-    if (checkDuplicates(values.name)) {
+export const ContactForm = () => {
+  const initialValues = {
+    name: '',
+    number: '',
+  };
+
+  const dispatch = useDispatch();
+  const NameList = useSelector(getContacts).map(contact =>
+    contact.name.toLowerCase()
+  );
+
+  const handleSubmit = ({ name, number }, { resetForm }) => {
+    const checkDuplicateContact = name => {
+      if (NameList.includes(name.toLowerCase())) {
+        toast.error(`${name} is already in contacts`);
+        return true;
+      }
+    };
+
+    if (checkDuplicateContact(name)) {
       return;
     }
-    onSubmit({ contact: values });
+
+    const newContact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+    dispatch(addContact(newContact));
     resetForm();
+    toast.success('New contact added');
   };
 
   return (
@@ -53,26 +74,34 @@ export const ContactForm = ({ onSubmit, checkDuplicates }) => {
       onSubmit={handleSubmit}
       validationSchema={contactSchema}
     >
-      <FormStyled>
-        <Label>
-          Name
-          <Input type="text" name="name" placeholder="Jonh Doe" />
-          <ErrorText name="name" component="div" />
-        </Label>
-        <Label>
-          Number
-          <Input name="number" component={MaskedInput} />
-          <ErrorText name="number" component="div" />
-        </Label>
-        <Button type="submit">Add</Button>
-      </FormStyled>
+      {({ handleChange, values: { name, number } }) => (
+        <FormStyled>
+          <Label>
+            Name
+            <Input
+              type="text"
+              name="name"
+              value={name}
+              onChange={handleChange}
+              placeholder="Jonh Doe"
+            />
+            <ErrorText name="name" component="div" />
+          </Label>
+          <Label>
+            Number
+            <Input
+              name="number"
+              value={number}
+              onChange={handleChange}
+              component={MaskedInput}
+            />
+            <ErrorText name="number" component="div" />
+          </Label>
+          <Button type="submit">Add</Button>
+        </FormStyled>
+      )}
     </Formik>
   );
 };
 
 export default ContactForm;
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  checkDuplicates: PropTypes.func.isRequired,
-};
