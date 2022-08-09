@@ -15,7 +15,6 @@ export const contactsReducer = createSlice({
       state.items.push(payload);
     },
     deleteContact: (state, { payload }) => {
-      console.log('payload :>> ', payload);
       state.items = state.items.filter(({ id }) => id !== payload);
     },
     filterItem: (state, { payload }) => {

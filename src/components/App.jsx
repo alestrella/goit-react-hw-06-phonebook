@@ -1,11 +1,6 @@
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  deleteContact,
-  filterItem,
-  getContacts,
-  getFilter,
-} from 'redux/contactsSlice';
-import toast, { Toaster } from 'react-hot-toast';
+import { useSelector } from 'react-redux';
+import { getContacts } from 'redux/contactsSlice';
+import { Toaster } from 'react-hot-toast';
 import ContactForm from './ContactForm';
 import Filter from './Filter';
 import ContactList from './ContactList';
@@ -14,24 +9,7 @@ import { Heading, MainHeading } from './Headings/Headings.styled';
 import NotificationText from './NotificationText';
 
 const App = () => {
-  const dispatch = useDispatch();
-
   const contacts = useSelector(getContacts);
-  const filter = useSelector(getFilter);
-
-  const handleDeleteContact = id => {
-    dispatch(deleteContact(id));
-    toast('Bye... Deleted contact', {
-      icon: '😢',
-    });
-  };
-
-  const handleFilter = e => {
-    dispatch(filterItem(e.target.value.toLocaleLowerCase()));
-  };
-
-  const filterContacts = () =>
-    contacts.filter(({ name }) => name.toLocaleLowerCase().includes(filter));
 
   return (
     <Box py={5} fontFamily="body" as="main">
@@ -53,11 +31,8 @@ const App = () => {
           <Heading>Contacts</Heading>
           {contacts.length > 0 ? (
             <>
-              <Filter value={filter} onChange={handleFilter} />
-              <ContactList
-                values={filterContacts()}
-                onDelete={handleDeleteContact}
-              />
+              <Filter />
+              <ContactList />
             </>
           ) : (
             <NotificationText message="There are no contacts" />
